@@ -5,7 +5,6 @@ import { PreviewComponent } from "../Components/PreviewComponent";
 
 function AddPost() {
   const [post, setPost] = useState([]);
-  const [content, setContent] = useState("");
   useEffect(() => {
     appwriteService.getAllPost().then((posts) => {
       if (posts) setPost(posts.documents);

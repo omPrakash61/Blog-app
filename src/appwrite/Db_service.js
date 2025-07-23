@@ -116,7 +116,7 @@ export class Db_services {
       );
 
       const data = await res.json();
-      console.log("Uploaded Image URL:", data.secure_url);
+      // console.log("Uploaded Image URL:", data.secure_url);
       return data.secure_url;
     } catch (err) {
       console.error("Upload Error:", err);

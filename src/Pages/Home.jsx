@@ -9,7 +9,7 @@ function Home() {
     appwriteService.getAllPost().then((post) => {
       if (post && post.documents) {
         setPosts(post.documents);
-        console.log("Fetched posts:", post.documents);
+        // console.log("Fetched posts:", post.documents);
       }
     }, (e) => {
       console.log(e)

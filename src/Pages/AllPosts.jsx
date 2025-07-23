@@ -12,7 +12,7 @@ function AllPosts() {
         setPosts(post.documents);
         setLoading(false);
         
-        console.log("Fetched posts:", post.documents);
+        // console.log("Fetched posts:", post.documents);
       }
     });
   }, []);

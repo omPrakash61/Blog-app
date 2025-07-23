@@ -30,7 +30,7 @@ function EditPost() {
     if (postId) {
       appwriteService.getPost(postId).then((post) => {
         setPost(post);
-        console.log(post);
+        // console.log(post);
       });
     }
   }, [postId, navigate]);

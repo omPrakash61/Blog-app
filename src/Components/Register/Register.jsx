@@ -10,17 +10,17 @@ function Signup() {
   const { register, handleSubmit,formState: { errors }, } = useForm();
 
   const create = async (data) => {
-    console.log(data);
+    // console.log(data);
     setError("");
     try {
       const userData = await authService.createAccount(data);
       if (userData) {
         navigate("/login");
       }
-      console.log(userData);
+      // console.log(userData);
     } catch (error) {
       setError("User already exists with same Email");
-      console.log(error);
+      // console.log(error);
     }
   };
 

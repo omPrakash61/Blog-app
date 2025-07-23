@@ -35,7 +35,7 @@ export default function Post() {
     if (!userData) navigate(`/login`);
 
     if (postId) {
-      console.log(postId);
+      // console.log(postId);
       appwriteService.getPost(postId).then(
         (post) => {
           setPost(post);

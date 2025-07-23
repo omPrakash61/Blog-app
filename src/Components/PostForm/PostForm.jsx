@@ -33,21 +33,21 @@ export default function PostForm({ post: postData }) {
     const status = data.Status;
     const userId = userData.$id;
 
-    console.log(title, slug, content, featuredImage, status, userId);
+    // console.log(title, slug, content, featuredImage, status, userId);
 
     if (!postData) {
       appwriteService.uploadFile(featuredImage).then(
         (imageUrl) => {
-          console.log(imageUrl);
+          // console.log(imageUrl);
           appwriteService
             .createPost({ title, content, imageUrl, status, userId })
             .then(
               (postData) => {
-                console.log("post uploaded : ", postData);
+                // console.log("post uploaded : ", postData);
                 navigate(`/post/${postData.$id}`);
               },
               (e) => {
-                console.log("error while uploading post : ", e);
+                // console.log("error while uploading post : ", e);
               }
             );
         },
@@ -65,7 +65,7 @@ export default function PostForm({ post: postData }) {
       appwriteService
         .updateFile({ publicId, featuredImage })
         .then((response) => {
-          console.log(response);
+          // console.log(response);
           const imageUrl =
             response === "image not updated"
               ? featuredImage
@@ -79,7 +79,7 @@ export default function PostForm({ post: postData }) {
               status,
             })
             .then((postData) => {
-              console.log("Post Updated:", postData);
+              // console.log("Post Updated:", postData);
               navigate(`/post/${postData.$id}`);
             })
             .catch((error) => {
