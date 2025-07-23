@@ -22,7 +22,6 @@ export default function PostForm({ post: postData }) {
       setValue("Slug", postData.Slug || "");
       setValue("Content", postData.Content || "");
       setValue("Status", postData.Status || "Active");
-      // You can skip featuredImage as it's a file input
     }
   }, [postData, setValue]);
 
@@ -57,7 +56,6 @@ export default function PostForm({ post: postData }) {
         }
       );
     } else {
-      // Steps to find image-publicId from Cloudinary url
       const url = postData.featuredImage;
       const cleanUrl = url.split(/[?#]/)[0];
       const parts = cleanUrl.split("/");
@@ -65,10 +63,13 @@ export default function PostForm({ post: postData }) {
       const publicId = filename.split(".")[0];
 
       appwriteService
-        .updateFile({  publicId, featuredImage })
+        .updateFile({ publicId, featuredImage })
         .then((response) => {
-          console.log(response); // { success: true, data: {...} }
-          const imageUrl = response === "image not updated" ? featuredImage : response.data.secure_url;
+          console.log(response);
+          const imageUrl =
+            response === "image not updated"
+              ? featuredImage
+              : response.data.secure_url;
 
           appwriteService
             .updatePost(postData.$id, {
@@ -119,65 +120,133 @@ export default function PostForm({ post: postData }) {
   }, [watch, slugTransform, setValue]);
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
-      <div className="w-3/5 px-2">
-        <Input
-          label="Title :"
-          placeholder="Title"
-          className="mb-4"
-          {...register("Title", { required: true })}
-        />
-        <Input
-          label="Slug :"
-          placeholder="Slug"
-          className="mb-4"
-          readOnly
-          {...register("Slug", { required: !postData })}
-          onInput={(e) => {
-            setValue("Slug", slugTransform(e.currentTarget.value), {
-              shouldValidate: true,
-            });
-          }}
-        />
-        <RTE
-          label="Content :"
-          name="Content"
-          control={control}
-          defaultValue={getValues("Content")}
-        />
+    <form
+      onSubmit={handleSubmit(submit)}
+      className="flex flex-col md:flex-row gap-6 bg-white rounded-xl my-4 shadow-xl p-6 md:py-10 animate-fade-in"
+    >
+      <div className="md:w-5/6 space-y-6">
+        <div>
+          <Input
+            label="Title"
+            placeholder="Enter your post title"
+            className="mb-2 border-0 border-b-2 border-gray-300 focus:border-blue-500 focus:ring-0 rounded-none"
+            {...register("Title", { required: true })}
+          />
+        </div>
+
+        <div className="">
+          <Input
+            label="Slug"
+            placeholder="Auto-generated slug"
+            className="mb-2"
+            readOnly
+            {...register("Slug", { required: !postData })}
+            onInput={(e) =>
+              setValue("Slug", slugTransform(e.currentTarget.value), {
+                shouldValidate: true,
+              })
+            }
+          />
+        </div>
+
+        <div className="transition-opacity duration-500">
+          <RTE
+            label="Content"
+            name="Content"
+            control={control}
+            defaultValue={getValues("Content")}
+          />
+        </div>
       </div>
-      <div className="w-2/5 px-2">
+
+      <div className="md:w-2/5 space-y-6">
         <Input
-          label="Featured Image :"
+          label="Featured Image"
           type="file"
-          className="mb-4"
+          className="mb-4 file:mr-4 file:py-2 file:px-4 
+         file:rounded-md file:border-0 
+         file:text-sm file:font-semibold 
+         file:bg-blue-50 file:text-blue-700 
+         hover:file:bg-blue-100 
+         transition-all duration-300"
           accept="image/png, image/jpg, image/jpeg, image/gif"
           {...register("featuredImage", { required: !postData })}
-          onChange={(e) => {
-            previewImage(e);
-          }}
+          onChange={previewImage}
         />
-        {(previewURL || postData?.featuredImage) && (
+
+        {previewURL || postData?.featuredImage ? (
           <div className="w-full mb-4">
             <img
               src={previewURL || postData.featuredImage}
               alt="Preview"
-              className="rounded-lg"
+              className="rounded-lg w-full object-cover max-h-140 shadow-md transition-all duration-300"
             />
           </div>
+        ) : (
+          <div className="w-full h-64 flex items-center justify-center mb-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-400 text-sm text-center transition-all duration-300 hover:border-blue-400 hover:text-blue-500">
+            <div>
+              <svg
+                className="mx-auto mb-2 w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 16.5V7a4 4 0 014-4h10a4 4 0 014 4v9.5M16 21H8a2 2 0 01-2-2v-1h12v1a2 2 0 01-2 2z"
+                />
+              </svg>
+              <p>
+                No image uploaded yet.
+                <br />
+                Your selected image will appear here.
+              </p>
+            </div>
+          </div>
         )}
-        <Select
-          options={["Active", "Inactive"]}
-          label="Status"
-          className="mb-4"
-          {...register("Status", { required: true })}
-        />
+
+        <div className="mb-4 relative">
+          <label className="block mb-1 text-sm font-semibold text-gray-700">
+            Status
+          </label>
+          <select
+            {...register("Status", { required: true })}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm 
+               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+               bg-white text-sm text-gray-800 transition-all duration-300 appearance-none 
+               hover:border-blue-400 cursor-pointer"
+          >
+
+            <option value="Active">🟢 Active</option>
+            <option value="Inactive">🔴 Inactive</option>
+          </select>
+
+          {/* Arrow Icon */}
+          <div className="absolute top-9 right-3 pointer-events-none">
+            <svg
+              className="w-4 h-4 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
+        </div>
+
         <Button
           type="submit"
           bgColor={postData ? "bg-green-500" : "bg-blue-600"}
-          className="w-full"
+          className="w-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
         >
-          {postData ? "Update-Changes" : "Submit ✈️"}
+          {postData ? "Update Changes" : "Submit ✈️"}
         </Button>
       </div>
     </form>

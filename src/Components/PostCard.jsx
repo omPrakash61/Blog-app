@@ -14,7 +14,7 @@ function PostCard({post}) {
             className="rounded-md"
           />
         </div>
-        <h2 className="text-xl font-mono">{ title }</h2>
+        <h2 className="text-2axl font-mono">{ title }</h2>
       </div>
     </Link>
   );

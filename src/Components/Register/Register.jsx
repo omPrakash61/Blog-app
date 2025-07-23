@@ -27,10 +27,9 @@ function Signup() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-9">
       <div className="w-full max-w-lg bg-white shadow-2xl rounded-2xl p-8 sm:p-10 border border-gray-400">
-        {/* Logo */}
         <div className="flex justify-center mb-6">
           <div className="w-24">
-            <Logo width="100%" />
+            {/* <Logo width="100%" /> */}
           </div>
         </div>
 
@@ -56,10 +55,9 @@ function Signup() {
 
         {/* Form */}
         <form onSubmit={handleSubmit(create)} className="mt-6 space-y-5">
-          {/* Full Name Field */}
           <div>
             <Input
-              className={errors.name ? "border-red-400 shadow-red-200 shadow" : ""}
+              className={`mb-2 border-0 border-b-2 border-gray-300 focus:border-blue-500 focus:ring-0 rounded-none ${errors.name ? "border-red-500 shadow shadow-red-200" : ""}`}
               label="Full Name"
               placeholder="Enter your full name"
               {...register("name", { required: "Full name is required" })}
@@ -72,7 +70,7 @@ function Signup() {
           {/* Email Field */}
           <div>
             <Input
-            className={errors.email ? "border-red-400 shadow-red-200 shadow" : ""}
+            className={`mb-2 border-0 border-b-2 border-gray-300 focus:border-blue-500 focus:ring-0 rounded-none ${errors.email ? "border-red-500 shadow shadow-red-200" : ""}`}
               label="Email"
               type="email"
               placeholder="Enter your email"
@@ -94,7 +92,7 @@ function Signup() {
           {/* Password Field */}
           <div>
             <Input
-              className={errors.password ? "border-red-400 shadow-red-200 shadow" : ""}
+              className={`mb-2 border-0 border-b-2 border-gray-300 focus:border-blue-500 focus:ring-0 rounded-none ${errors.password ? "border-red-500 shadow shadow-red-200" : ""}`}
               label="Password"
               type="password"
               placeholder="Enter your password"
