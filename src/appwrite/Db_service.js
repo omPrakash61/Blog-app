@@ -124,7 +124,7 @@ export class Db_services {
   }
 
   async deleteFile(publicId) {
-    const res = await fetch("http://localhost:5000/delete", {
+    const res = await fetch(`${config.BACKEND_URL}/delete`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -148,7 +148,7 @@ export class Db_services {
       formData.append("image", featuredImage);
       formData.append("publicId", publicId);
 
-      const res = await fetch("http://localhost:5000/upload", {
+      const res = await fetch(`${config.BACKEND_URL}/upload`, {
         method: "POST",
         body: formData,
       });
