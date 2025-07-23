@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import authService from "../../appwrite/auth_service.js";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../../../Auth-Slice/authSlice.js";
 import { Button, Input, Logo } from "../index.js";
-import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 
 function Signup() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit,formState: { errors }, } = useForm();
 
   const create = async (data) => {
     console.log(data);
@@ -18,78 +15,107 @@ function Signup() {
     try {
       const userData = await authService.createAccount(data);
       if (userData) {
-        if (userData) dispatch(login(userData));
-        navigate("/");
+        navigate("/login");
       }
       console.log(userData);
     } catch (error) {
-      setError(error.message);
+      setError("User already exists with same Email");
       console.log(error);
     }
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <div
-        className={`mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10`}
-      >
-        <div className="mb-2 flex justify-center">
-          <span className="inline-block w-full max-w-[100px]">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-9">
+      <div className="w-full max-w-lg bg-white shadow-2xl rounded-2xl p-8 sm:p-10 border border-gray-400">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <div className="w-24">
             <Logo width="100%" />
-          </span>
+          </div>
         </div>
-        <h2 className="text-center text-2xl font-bold leading-tight">
-          Sign up to create account
+
+        <h2 className="text-2xl font-bold text-center text-gray-800">
+          Sign up to create an account
         </h2>
-        <p className="mt-2 text-center text-base text-black/60">
-          Already have an account?&nbsp;
+
+        <p className="mt-2 text-center text-sm text-gray-500">
+          Already have an account?{" "}
           <Link
             to="/login"
-            className="font-medium text-primary transition-all duration-200 hover:underline"
+            className="text-blue-600 hover:text-blue-700 font-medium"
           >
-            Sign In
+            Sign in
           </Link>
         </p>
-        {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit(create)}>
-          <div className="space-y-5">
+        {error && (
+          <div className="bg-red-100 text-red-700 bold text-sm text-center py-4 px-4 rounded mt-4">
+            {error}
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(create)} className="mt-6 space-y-5">
+          {/* Full Name Field */}
+          <div>
             <Input
-              label="Full Name: "
+              className={errors.name ? "border-red-400 shadow-red-200 shadow" : ""}
+              label="Full Name"
               placeholder="Enter your full name"
-              {...register("name", {
-                required: true,
-              })}
+              {...register("name", { required: "Full name is required" })}
             />
+            {errors.name && (
+              <p className="text-sm text-red-600 ms-2">{errors.name.message}</p>
+            )}
+          </div>
+
+          {/* Email Field */}
+          <div>
             <Input
-              label="Email: "
-              placeholder="Enter your email"
+            className={errors.email ? "border-red-400 shadow-red-200 shadow" : ""}
+              label="Email"
               type="email"
+              placeholder="Enter your email"
               {...register("email", {
-                required: true,
-                validate: {
-                  matchPatern: (value) =>
-                    /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                    "Email address must be a valid address",
+                required: "Email is required",
+                pattern: {
+                  value: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+                  message: "Enter a valid email address",
                 },
               })}
             />
+            {errors.email && (
+              <p className="text-sm ms-2 text-red-600 mt-1">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          {/* Password Field */}
+          <div>
             <Input
-              label="Password: "
+              className={errors.password ? "border-red-400 shadow-red-200 shadow" : ""}
+              label="Password"
               type="password"
               placeholder="Enter your password"
               {...register("password", {
-                required: true,
+                required: "Password is required",
                 minLength: {
                   value: 8,
                   message: "Password must be at least 8 characters",
                 },
               })}
             />
-            <Button type="submit" className="w-full">
-              Create Account
-            </Button>
+            {errors.password && (
+              <p className="text-sm ms-2 text-red-600 mt-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
+
+          <Button type="submit" className="w-full">
+            Create Account
+          </Button>
         </form>
       </div>
     </div>

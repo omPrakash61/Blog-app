@@ -1,29 +1,36 @@
-import React, { useEffect, useState } from 'react'
-import { Container, PostCard } from '../Components'
-import appwriteService from "../appwrite/Db_service"
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useEffect, useState } from "react";
+import { Container, PostCard } from "../Components";
+import appwriteService from "../appwrite/Db_service";
+import { useNavigate, useParams } from "react-router-dom";
+import { PostForm } from "../Components";
 
 function EditPost() {
-    const [post, setPost] = useState(null)
-    const {slug} = useParams()
-    const navigate = useNavigate()
+  const [post, setPost] = useState(null);
+  const { postId } = useParams();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        if(slug){
-            appwriteService.getPost(slug).then((post) =>{
-                if(post) setPost(post)
-            })
-        }else{
-            navigate('/')
-        }
-    }, [slug, navigate])
+  useEffect(() => {
+    if (postId) {
+      appwriteService.getPost(postId).then((post) => {
+        setPost(post);
+        console.log(post);
+      });
+    }
+  }, [postId, navigate]);
   return (
-    <div className='py-8'>
+    <div className="py-8">
       <Container>
-        <PostForm post={post}/>
+        {post ? (
+          <>
+            <h1 className="flex justify-center"> {post.Title} </h1>
+            <PostForm post={post} />
+          </>
+        ) : (
+          "Loading post..." // Loading Component 
+        )}
       </Container>
     </div>
-  )
+  );
 }
 
-export default EditPost
+export default EditPost;

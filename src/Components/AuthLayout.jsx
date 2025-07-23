@@ -20,7 +20,7 @@ export default function Protected({ children, authentication = true }) {
     if (authentication && authStatus !== authentication) {
       navigate("/login");
     } else if (!authentication && authStatus !== authentication) {
-      navigate("/");
+      navigate("/all-posts");
     }
     setLoader(false);
   }, [authStatus, navigate, authentication]);

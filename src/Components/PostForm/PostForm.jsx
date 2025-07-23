@@ -4,88 +4,97 @@ import { Button, Input, RTE, Select } from "../index";
 import appwriteService from "../../appwrite/Db_service";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import dbservices from "../../appwrite/Db_service";
+import { useState } from "react";
 
-export default function PostForm(post) {
+export default function PostForm({ post: postData }) {
   const { register, handleSubmit, watch, setValue, control, getValues } =
     useForm();
 
+  const [previewURL, setPreviewURL] = useState(null);
+
   const navigate = useNavigate();
 
-
-  
   const userData = useSelector((state) => state.auth.userData);
 
   useEffect(() => {
-    console.log(userData)
-  },[])
+    if (postData) {
+      setValue("Title", postData.Title || "");
+      setValue("Slug", postData.Slug || "");
+      setValue("Content", postData.Content || "");
+      setValue("Status", postData.Status || "Active");
+      // You can skip featuredImage as it's a file input
+    }
+  }, [postData, setValue]);
 
   const submit = async (data) => {
-    const title = data.Title
-    const slug = data.Slug
-    const content = data.Content
-    const featuredImage = data.featuredImage[0]
-    const status = data.Status
-    const userId = userData.$id
+    const title = data.Title;
+    const slug = data.Slug;
+    const content = data.Content;
+    const featuredImage = data.featuredImage[0];
+    const status = data.Status;
+    const userId = userData.$id;
 
-    console.log(title, slug, content, featuredImage, status, userId)
-    appwriteService.uploadFile(featuredImage).then((imageData) => {
-      console.log(imageData)
-      const imageId = imageData.$id
-      appwriteService.createPost({title, slug, content, imageId, status, userId}).then((postData) =>{ 
-        console.log("post uploaded : ",postData)
-        navigate(`/post/${postData.$id}`);
-      }, (e) => {
-        console.log("error while uploading post : ",e)
-      })
-    }, (error) => {
-      console.log("error while uploading image : ",error)
-    })
+    console.log(title, slug, content, featuredImage, status, userId);
 
+    if (!postData) {
+      appwriteService.uploadFile(featuredImage).then(
+        (imageUrl) => {
+          console.log(imageUrl);
+          appwriteService
+            .createPost({ title, content, imageUrl, status, userId })
+            .then(
+              (postData) => {
+                console.log("post uploaded : ", postData);
+                navigate(`/post/${postData.$id}`);
+              },
+              (e) => {
+                console.log("error while uploading post : ", e);
+              }
+            );
+        },
+        (error) => {
+          console.log("error while uploading image : ", error);
+        }
+      );
+    } else {
+      // Steps to find image-publicId from Cloudinary url
+      const url = postData.featuredImage;
+      const cleanUrl = url.split(/[?#]/)[0];
+      const parts = cleanUrl.split("/");
+      const filename = parts.pop();
+      const publicId = filename.split(".")[0];
 
-    // if (!data) {
-    // const file = data.featuredImage[0]
-    //   ? appwriteService.uploadFile(file)
-    //   : null;
+      appwriteService
+        .updateFile({  publicId, featuredImage })
+        .then((response) => {
+          console.log(response); // { success: true, data: {...} }
+          const imageUrl = response === "image not updated" ? featuredImage : response.data.secure_url;
 
-    // console.log(file);
+          appwriteService
+            .updatePost(postData.$id, {
+              title,
+              content,
+              featuredImage: imageUrl,
+              status,
+            })
+            .then((postData) => {
+              console.log("Post Updated:", postData);
+              navigate(`/post/${postData.$id}`);
+            })
+            .catch((error) => {
+              console.error("Update Post Error:", error);
+            });
+        });
+    }
+  };
 
-    // const file = await appwriteService.uploadFile(data.featuredImage[0]);
-
-    
-    // const fileId = file.$id;
-    // data.featuredImage = fileId;
-    // const dbPost = await appwriteService.createPost({
-      // data.Title,
-    // });
-    //     console.log(data.featuredImage[0]);
-    //   if (file) {
-    //     appwriteService.deleteFile(post.featuredImage);
-    //   }
-
-    //   const dbPost = await appwriteService.updatePost(post.$id, {
-    //     ...data,
-    //     featuredImage: file ? file.$id : undefined,
-    //   });
-
-    //   if (dbPost) {
-    //     navigate(`/post/${dbPost.$id}`);
-    //   }
-    // } else {
-    // const file = await appwriteService.uploadFile(data.featuredImage[0]);
-
-    // if (1) {
-    // const fileId = file.$id;
-    // data.featuredImage = fileId;
-    // const dbPost = await appwriteService.createPost({
-    //   ...data,
-    //   userId: userData.$id,
-    // });
-
-    // if (dbPost) {
-    //   navigate(`/post/${dbPost.$id}`);
-    // }
-    // }
+  // Preview imediate uploaded Image, make a bakend request to update the image data to Cloudinary
+  const previewImage = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const localUrl = URL.createObjectURL(file);
+      setPreviewURL(localUrl);
+    }
   };
 
   const slugTransform = useCallback((value) => {
@@ -123,7 +132,7 @@ export default function PostForm(post) {
           placeholder="Slug"
           className="mb-4"
           readOnly
-          {...register("Slug", { required: true })}
+          {...register("Slug", { required: !postData })}
           onInput={(e) => {
             setValue("Slug", slugTransform(e.currentTarget.value), {
               shouldValidate: true,
@@ -143,13 +152,16 @@ export default function PostForm(post) {
           type="file"
           className="mb-4"
           accept="image/png, image/jpg, image/jpeg, image/gif"
-          {...register("featuredImage", { required: !post })}
+          {...register("featuredImage", { required: !postData })}
+          onChange={(e) => {
+            previewImage(e);
+          }}
         />
-        {post && (
+        {(previewURL || postData?.featuredImage) && (
           <div className="w-full mb-4">
             <img
-              src={post.featuredImage}
-              alt={post.title}
+              src={previewURL || postData.featuredImage}
+              alt="Preview"
               className="rounded-lg"
             />
           </div>
@@ -162,10 +174,10 @@ export default function PostForm(post) {
         />
         <Button
           type="submit"
-          bgColor={post ? "bg-green-500" : undefined}
+          bgColor={postData ? "bg-green-500" : "bg-blue-600"}
           className="w-full"
         >
-          Submit
+          {postData ? "Update-Changes" : "Submit ✈️"}
         </Button>
       </div>
     </form>

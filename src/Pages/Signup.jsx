@@ -3,7 +3,7 @@ import { Register } from '../Components'
 
 function Signup() {
   return (
-    <div className='py-8'>
+    <div>
         <Register />
     </div>
   )
