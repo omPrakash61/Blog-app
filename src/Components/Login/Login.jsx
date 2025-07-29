@@ -38,7 +38,7 @@ function Login() {
 
         <div className="flex justify-center mb-6">
           <div className="w-24">
-            {/* <Logo width="100%" /> */}
+            {/* <Logo /> */}
           </div>
         </div>
 

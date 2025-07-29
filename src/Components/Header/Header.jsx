@@ -15,11 +15,11 @@ function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    {
-      name: "My-Posts",
-      slug: "/my-posts",
-      active: authStatus,
-    },
+    // {
+    //   name: "My-Posts",
+    //   slug: "/my-posts",
+    //   active: authStatus,
+    // },
     {
       name: "Login",
       slug: "/login",
@@ -45,7 +45,7 @@ function Header() {
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <Container>
-        <nav className="flex items-center justify-between py-4">
+        <nav className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <Logo width="60px" />
           </Link>

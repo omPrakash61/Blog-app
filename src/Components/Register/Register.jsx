@@ -29,7 +29,7 @@ function Signup() {
       <div className="w-full max-w-lg bg-white shadow-2xl rounded-2xl p-8 sm:p-10 border border-gray-400">
         <div className="flex justify-center mb-6">
           <div className="w-24">
-            {/* <Logo width="100%" /> */}
+            {/* <Logo /> */}
           </div>
         </div>
 
